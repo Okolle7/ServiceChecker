@@ -23,8 +23,9 @@ foreach ($name in $services) {
         continue
     }
 
+    $delayed = $svc.DelayedAutoStart -and $svc.StartMode -eq "Auto"
     $mode = $svc.StartMode
-    if ($svc.DelayedAutoStart) { $mode += " (delayed)" }
+    if ($delayed) { $mode += " (delayed)" }
 
     $started = $null
     if ($svc.ProcessId) { $started = $procStart[[int]$svc.ProcessId] }
@@ -36,7 +37,7 @@ foreach ($name in $services) {
         $delayText = "+{0}:{1:00}:{2:00}" -f [int][math]::Floor($delay.TotalHours), $delay.Minutes, $delay.Seconds
     }
 
-    $limit = if ($svc.DelayedAutoStart) { 10 } else { 3 }
+    $limit = if ($delayed) { 10 } else { 3 }
     if ($svc.State -ne "Running") {
         $verdict, $color = "NOT RUNNING", "Red"
         if ($svc.StartMode -eq "Manual") { $verdict, $color = "stopped (manual)", "Yellow" }
